@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card card-3d">
+  <h1>Notifications</h1>
+
+  <table class="table">
+    <thead>
+      <tr><th>Time</th><th>Message</th></tr>
+    </thead>
+    <tbody>
+      {% for n in notes %}
+      <tr>
+        <td class="mono">{{ n.created_at }}</td>
+        <td>{{ n.message }}</td>
+      </tr>
+      {% endfor %}
+      {% if not notes %}
+      <tr><td colspan="2"><small>No notifications.</small></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>SecureChain Vault – Approvals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="static/app.css">
+  <script defer src="static/app.js"></script>
+</head>
+<body>
+  <div class="nav">
+    <div class="left">
+      <div class="brand">SecureChain Vault</div>
+      <span class="pill">user: <b>bob</b></span>
+      <span class="pill">role: <b>staff</b></span>
+      <a class="pill" href="dashboard.html">Dashboard</a>
+      <a class="pill" href="approvals.html">Approvals</a>
+      <a class="pill" href="notifications.html">Notifications</a>
+      <a class="pill" href="chain.html">Blockchain</a>
+      <a class="pill" href="status.html">Status</a>
+      <a class="pill" href="admin-users.html">Admin</a>
+      <a class="pill" href="chain-admin.html">Chain (admin)</a>
+    </div>
+    <div>
+      <a class="btn" href="login.html">Logout</a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Flash messages placeholder -->
+  </div>
+
+  <div class="container">
+    <div class="card card-3d">
+      <h1>Approvals</h1>
+      <p>
+        <small>
+          Only Staff/Admin can approve. Requesters cannot approve or reject their own requests.
+          Quorum is based on number of higher-authority approvers (excluding requester).
+        </small>
+      </p>
+
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Requester</th>
+            <th>Action</th>
+            <th>Target</th>
+            <th>Approvals</th>
+            <th>Your decision</th>
+            <th>Decide</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Example pending request row -->
+          <tr>
+            <td>5</td>
+            <td>alice</td>
+            <td><span class="badge">download</span></td>
+            <td>
+              file_id=1<br>
+              <small>evidence-photo.jpg</small>
+            </td>
+            <td>
+              <span class="badge ok">1</span>
+            </td>
+            <td>
+              <span class="badge warn">none</span>
+            </td>
+            <td class="row">
+              <!-- Backend endpoint: POST /decision -->
+              <form method="post" action="/decision">
+                <input type="hidden" name="csrf" value="CSRF_TOKEN_HERE">
+                <input type="hidden" name="request_id" value="5">
+                <input type="hidden" name="decision" value="approve">
+                <button class="btn primary" type="submit">Approve</button>
+              </form>
+              <form method="post" action="/decision">
+                <input type="hidden" name="csrf" value="CSRF_TOKEN_HERE">
+                <input type="hidden" name="request_id" value="5">
+                <input type="hidden" name="decision" value="reject">
+                <button class="btn danger" type="submit">Reject</button>
+              </form>
+            </td>
+          </tr>
+
+          <!-- If no requests, backend can show: -->
+          <!-- <tr><td colspan="7"><small>No pending requests.</small></td></tr> -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card card-3d">
+  <div class="row" style="justify-content:space-between; align-items:flex-start;">
+    <div>
+      <h1>Blockchain Audit Ledger (Admin)</h1>
+      <p><small>Full chain view for administrative verification.</small></p>
+    </div>
+    <div style="text-align:right;">
+      {% if ok %}
+        <span class="badge ok">Chain OK</span>
+      {% else %}
+        <span class="badge bad">Chain FAIL</span>
+      {% endif %}
+      {% if msg %}
+        <div><small>{{ msg }}</small></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Idx</th>
+        <th>Time (UTC)</th>
+        <th>Event</th>
+        <th>Hash</th>
+        <th>Prev Hash</th>
+        <th>Payload</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in blocks %}
+      <tr>
+        <td>{{ b.idx }}</td>
+        <td class="mono">{{ b.ts }}</td>
+        <td><span class="badge">{{ b.event_type }}</span></td>
+        <td class="mono" title="{{ b.hash }}">{{ b.hash[:14] }}…</td>
+        <td class="mono" title="{{ b.prev_hash }}">{{ b.prev_hash[:14] }}…</td>
+        <td class="mono" style="max-width:360px;word-break:break-all;">{{ b.payload_json }}</td>
+      </tr>
+      {% endfor %}
+      {% if not blocks %}
+      <tr><td colspan="6"><small>No blocks.</small></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

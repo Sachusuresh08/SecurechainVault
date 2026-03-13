@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid cols2">
+  <div class="card card-3d">
+    <h1>Login</h1>
+    <p><small>Sign in to access SecureChain Vault.</small></p>
+
+    <form method="post" action="{{ url_for('login') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+
+      <label>Username</label>
+      <input class="input" name="username" autocomplete="username">
+
+      <label>Password</label>
+      <input class="input" type="password" name="password" autocomplete="current-password">
+
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" type="submit">Login</button>
+      </div>
+    </form>
+
+    <!-- <p style="margin-top:10px">
+      <small>
+        Default admin (first setup): <span class="mono">admin</span> /
+        <span class="mono">admin123</span>.
+        Change immediately.
+      </small>
+    </p> -->
+
+    <hr style="border-color:rgba(255,255,255,.10); margin:16px 0;">
+
+    <h2>Register</h2>
+    <p><small>Create a normal user account. Staff/Admin must be created by an existing Admin.</small></p>
+
+    <form method="post" action="{{ url_for('register') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+
+      <label>Username</label>
+      <input class="input" name="reg_username" autocomplete="username">
+
+      <label>Password</label>
+      <input class="input" type="password" name="reg_password" autocomplete="new-password">
+
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" type="submit">Create account</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card card-3d">
+    <div class="slider" id="info-slider">
+      <div class="slide active">
+        <h2>1. Upload</h2>
+        <p><small>Users request uploads. Files stay on local disk; DB stores metadata + SHA-256.</small></p>
+      </div>
+      <div class="slide">
+        <h2>2. Multi-Approval</h2>
+        <p><small>Staff/Admin approve uploads and downloads. Requester cannot self-approve.</small></p>
+      </div>
+      <div class="slide">
+        <h2>3. Blockchain Audit</h2>
+        <p><small>Each important event is written to a permissioned blockchain for tamper-evident logs.</small></p>
+      </div>
+      <div class="slide">
+        <h2>4. Controlled Download</h2>
+        <p><small>Downloads are only allowed when the request reaches quorum of higher authorities.</small></p>
+      </div>
+    </div>
+    <div class="slider-controls">
+      <button class="btn" type="button" data-slider-prev>Prev</button>
+      <button class="btn" type="button" data-slider-next>Next</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

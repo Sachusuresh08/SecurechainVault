@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card card-3d">
+  <h1>System Status</h1>
+  <p><small>Overview of SecureChain Vault health and key metrics.</small></p>
+
+  <div class="status-grid">
+    <div class="status-card">
+      <h2>Users</h2>
+      <p class="status-number">{{ stats.users }}</p>
+    </div>
+    <div class="status-card">
+      <h2>Files</h2>
+      <p class="status-number">{{ stats.files }}</p>
+    </div>
+    <div class="status-card">
+      <h2>Pending Requests</h2>
+      <p class="status-number">{{ stats.pending_reqs }}</p>
+    </div>
+    <div class="status-card">
+      <h2>Approved Requests</h2>
+      <p class="status-number">{{ stats.approved_reqs }}</p>
+    </div>
+    <div class="status-card">
+      <h2>Rejected Requests</h2>
+      <p class="status-number">{{ stats.rejected_reqs }}</p>
+    </div>
+    <div class="status-card">
+      <h2>Chain</h2>
+      <p class="status-number">{% if stats.chain_ok %}OK{% else %}FAIL{% endif %}</p>
+      <p><small>{{ stats.chain_msg }}</small></p>
+    </div>
+  </div>
+
+  <div style="margin-top:16px;">
+    <p><small>Approval quorum: {{ stats.quorum }} | Max upload size: {{ stats.max_upload_mb }} MB</small></p>
+  </div>
+</div>
+{% endblock %}

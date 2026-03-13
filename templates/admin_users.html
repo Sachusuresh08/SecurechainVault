@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid cols2">
+  <div class="card card-3d">
+    <h1>Admin: Users</h1>
+    <p><small>Manage accounts and roles. Keep admins minimal; staff act as approvers.</small></p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Username</th>
+          <th>Role</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.username }}</td>
+          <td><span class="badge">{{ u.role }}</span></td>
+          <td>
+            {% if u.username == current_user %}
+              <small><span class="mono">current user</span></small>
+            {% else %}
+              <form method="post" action="{{ url_for('admin_users') }}"
+                    onsubmit="return confirm('Delete user {{ u.username }}?');">
+                <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="username" value="{{ u.username }}">
+                <button class="btn danger" type="submit">Delete</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        {% if not users %}
+        <tr><td colspan="4"><small>No users.</small></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card card-3d">
+    <h1>Create user</h1>
+    <p><small>Create staff/admin only when necessary and with strong passwords.</small></p>
+
+    <form method="post" action="{{ url_for('admin_users') }}">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <input type="hidden" name="action" value="create">
+
+      <label>Username</label>
+      <input class="input" name="username" autocomplete="username">
+
+      <label>Password</label>
+      <input class="input" type="password" name="password" autocomplete="new-password">
+
+      <label>Role</label>
+      <select class="input" name="role">
+        <option value="user">User</option>
+        <option value="staff">Staff (approver)</option>
+        <option value="admin">Admin</option>
+      </select>
+
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" type="submit">Create</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid cols2">
+  <div class="card card-3d">
+    <h1>My Files</h1>
+    <p>
+      <small>
+        Files are stored on the local server disk. The database stores metadata and a SHA-256 hash.
+      </small>
+    </p>
+
+    <table class="table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Owner</th>
+          <th>Filename</th>
+          <th>SHA-256</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in files %}
+        <tr>
+          <td>{{ f.id }}</td>
+          <td>{{ f.owner }}</td>
+          <td title="{{ f.orig_filename }}">{{ f.orig_filename }}</td>
+          <td class="mono" title="{{ f.sha256 }}">{{ f.sha256[:18] }}…</td>
+          <td class="row">
+            {% if current_role in ['staff', 'admin'] %}
+              <a class="btn primary" href="{{ url_for('download_file', file_id=f.id) }}">Download</a>
+            {% else %}
+              <form method="post" action="{{ url_for('request_download', file_id=f.id) }}">
+                <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+                <button class="btn" type="submit">Request download</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+        {% if not files %}
+        <tr><td colspan="5"><small>No files yet.</small></td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card card-3d">
+    <h1>Request Upload</h1>
+    <p>
+      <small>
+        Uploads become <b>requests</b>. Staff/Admin must approve. Requester cannot approve their own.
+        Quorum is {{ quorum }} (or fewer if there are fewer approvers).
+      </small>
+    </p>
+
+    <form method="post" action="{{ url_for('request_upload') }}" enctype="multipart/form-data">
+      <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+      <label>Select file</label>
+      <input class="input" type="file" name="file">
+      <div class="row" style="margin-top:12px">
+        <button class="btn primary" type="submit">Create upload request</button>
+      </div>
+      <p style="margin-top:6px;">
+        <small>Max upload size: {{ config.MAX_CONTENT_LENGTH // (1024*1024) }} MB</small>
+      </p>
+    </form>
+
+    {% if current_role in ['staff','admin'] %}
+      <hr style="border-color:rgba(255,255,255,.10); margin:16px 0;">
+      <h2>Pending approvals</h2>
+      {% if pending %}
+        <p><small>You can approve from the Approvals page.</small></p>
+        <div class="mono">Pending requests: {{ pending|length }}</div>
+        <table class="table" style="margin-top:8px">
+          <thead>
+            <tr><th>ID</th><th>Requester</th><th>Action</th><th>Target</th></tr>
+          </thead>
+          <tbody>
+            {% for r in pending %}
+            <tr>
+              <td>{{ r.id }}</td>
+              <td>{{ r.requester }}</td>
+              <td>{{ r.action }}</td>
+              <td>
+                {% if r.action=='upload' %}
+                  {{ r.orig_filename }}
+                {% elif r.action=='download' %}
+                  file_id={{ r.file_id }}
+                {% else %}
+                  -
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p><small>No pending approvals.</small></p>
+      {% endif %}
+    {% endif %}
+
+    {% if recent_reqs %}
+      <hr style="border-color:rgba(255,255,255,.10); margin:16px 0;">
+      <h2>Recent requests</h2>
+      <table class="table" style="margin-top:8px">
+        <thead><tr><th>ID</th><th>Requester</th><th>Action</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for r in recent_reqs %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.requester }}</td>
+            <td>{{ r.action }}</td>
+            <td>{{ r.status }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

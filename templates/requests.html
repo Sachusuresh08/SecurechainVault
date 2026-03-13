@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="card card-3d">
+  <h1>Approvals</h1>
+  <p>
+    <small>
+      Only Staff/Admin can approve. Requesters cannot approve or reject their own requests.
+      Quorum = min(configured quorum, number of approvers excluding requester).
+    </small>
+  </p>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Requester</th>
+        <th>Action</th>
+        <th>Target</th>
+        <th>Approvals</th>
+        <th>Your decision</th>
+        <th>Decide</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% if approver %}
+        {% for r in requests %}
+        {% set meta = info.get(r.id, {}) %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.requester }}</td>
+          <td><span class="badge">{{ r.action }}</span></td>
+          <td>
+            {% if r.action == 'download' %}
+              file_id={{ r.file_id }}<br>
+              <small>{{ r.orig_filename }}</small>
+            {% else %}
+              <b>{{ r.orig_filename }}</b><br>
+              <small class="mono" title="{{ r.sha256 }}">{{ r.sha256[:18] }}…</small>
+            {% endif %}
+          </td>
+          <td><span class="badge ok">{{ meta.approvals or 0 }}</span></td>
+          <td>
+            {% if meta.my_decision %}
+              <span class="badge {{ 'ok' if meta.my_decision=='approve' else 'bad' }}">
+                {{ meta.my_decision }}
+              </span>
+            {% else %}
+              <span class="badge warn">none</span>
+            {% endif %}
+          </td>
+          <td class="row">
+            {% if not meta.my_decision %}
+              <form method="post" action="{{ url_for('decision') }}">
+                <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+                <input type="hidden" name="request_id" value="{{ r.id }}">
+                <input type="hidden" name="decision" value="approve">
+                <button class="btn primary" type="submit">Approve</button>
+              </form>
+              <form method="post" action="{{ url_for('decision') }}">
+                <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+                <input type="hidden" name="request_id" value="{{ r.id }}">
+                <input type="hidden" name="decision" value="reject">
+                <button class="btn danger" type="submit">Reject</button>
+              </form>
+            {% else %}
+              <small>—</small>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      {% else %}
+        <tr><td colspan="7"><small>Only approvers see this list.</small></td></tr>
+      {% endif %}
+      {% if approver and not requests %}
+      <tr><td colspan="7"><small>No pending requests.</small></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card card-3d" style="margin-top:24px;">
+  <h1>My requests</h1>
+  <table class="table">
+    <thead>
+      <tr><th>ID</th><th>Action</th><th>Target</th><th>Status</th><th>Created</th></tr>
+    </thead>
+    <tbody>
+      {% for r in my_reqs %}
+      <tr>
+        <td>{{ r.id }}</td>
+        <td>{{ r.action }}</td>
+        <td>
+          {% if r.action=='download' %}
+            file_id={{ r.file_id }}<br>
+            <small>{{ r.orig_filename }}</small>
+          {% else %}
+            {{ r.orig_filename }}
+          {% endif %}
+        </td>
+        <td>{{ r.status }}</td>
+        <td>{{ r.created_at }}</td>
+      </tr>
+      {% endfor %}
+      {% if not my_reqs %}
+      <tr><td colspan="5"><small>You have not made any requests yet.</small></td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
