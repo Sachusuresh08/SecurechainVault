@@ -487,8 +487,8 @@ def download_file(file_id: int):
         flash("File not found.", "bad")
         return redirect(url_for("dashboard"))
 
-    # Staff/Admin can directly download without needing an approved request
-    if session.get("role") in ["admin", "staff"]:
+    # Admin can directly download without needing an approved request
+    if session.get("role") == "admin":
         append_block(conn, "DOWNLOAD_DIRECT", {"file_id": file_id, "by": session["user"], "role": session.get("role")})
         conn.close()
         return send_from_directory(
