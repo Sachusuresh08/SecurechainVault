@@ -11,7 +11,16 @@
       {% for n in notes %}
       <tr>
         <td class="mono">{{ n.created_at }}</td>
-        <td>{{ n.message }}</td>
+        <td>
+          {% if n.message.startswith('DOWNLOAD_READY|') %}
+            {% set parts = n.message.split('|') %}
+            {% set file_id = parts[1] %}
+            {% set fname = parts[2] if parts|length > 2 else 'file' %}
+            <a class="btn" href="{{ url_for('download_file', file_id=file_id) }}">Download {{ fname }}</a>
+          {% else %}
+            {{ n.message }}
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
       {% if not notes %}

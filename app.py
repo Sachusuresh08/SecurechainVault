@@ -246,6 +246,15 @@ def finalize_if_ready(req_id: int):
         c.execute("UPDATE requests SET status='approved' WHERE id=?", (req_id,))
         append_block(conn, "REQUEST_APPROVED", {"request_id": req_id, "approvals": approvals, "quorum": quorum})
         broadcast(conn, f"Request #{req_id} approved (quorum {approvals}/{quorum}).")
+
+        # If this was a download request, notify the requester with a download link.
+        if req["action"] == "download":
+            safe_name = (req.get("orig_filename") or "").replace("|", "/")
+            download_msg = f"DOWNLOAD_READY|{req['file_id']}|{safe_name}"
+            c.execute(
+                "INSERT INTO notifications (recipient, message, created_at) VALUES (?,?,?)",
+                (requester, download_msg, datetime.utcnow().isoformat())
+            )
     
     conn.commit()
     conn.close()
@@ -378,7 +387,12 @@ def requests_page():
     info = {}
     
     if approver:
-        c.execute("SELECT * FROM requests WHERE status = 'pending' ORDER BY created_at DESC")
+        # Staff should not see their own requests in the pending approvals list.
+        if session.get("role") == "admin":
+            c.execute("SELECT * FROM requests WHERE status = 'pending' ORDER BY created_at DESC")
+        else:
+            c.execute("SELECT * FROM requests WHERE status = 'pending' AND requester != ? ORDER BY created_at DESC", (session["user"],))
+
         pending = c.fetchall()
         for r in pending:
             rid = r["id"]
