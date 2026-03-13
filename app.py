@@ -25,6 +25,10 @@ APPROVER_ROLES = {"staff", "admin"}
 MAX_UPLOAD_MB = int(os.environ.get("MAX_UPLOAD_MB", "25"))
 
 app = Flask(__name__)
+
+app.config["SESSION_COOKIE_SECURE"] = True
+app.config["SESSION_COOKIE_HTTPONLY"] = True
+
 app.secret_key = os.environ.get("SECRET_KEY", "CHANGE_ME_" + secrets.token_hex(16))
 app.config["MAX_CONTENT_LENGTH"] = MAX_UPLOAD_MB * 1024 * 1024
 app.config.update(SESSION_COOKIE_HTTPONLY=True, SESSION_COOKIE_SAMESITE="Lax")

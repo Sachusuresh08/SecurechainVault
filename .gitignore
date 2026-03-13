@@ -1,0 +1,23 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# SQLite runtime DB
+users.db
+*.db
+*.sqlite
+
+# Uploaded storage
+storage/
+
+# Virtualenvs
+.venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
