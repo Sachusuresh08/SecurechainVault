@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="grid" style="max-width:600px;margin:0 auto;">
+  <div class="card card-3d">
+    <h1>⚙️ Settings</h1>
+    <p><small>Administrator-only controls. These actions are irreversible.</small></p>
+
+    <hr style="border-color:rgba(255,255,255,.10);margin:18px 0;">
+
+    <!-- Danger Zone -->
+    <div style="border:1px solid rgba(255,106,106,.30);border-radius:12px;padding:18px;background:rgba(255,106,106,.05);">
+      <h2 style="color:var(--danger);margin-bottom:6px;">🗑️ Danger Zone</h2>
+      <p style="margin:0 0 14px;">
+        <small>
+          <b>Clear Database</b> — permanently deletes <em>all</em> users, files, requests,
+          notifications and blockchain records from the database and from disk.<br>
+          The default <code>admin</code> account will be recreated automatically so you
+          can log back in with <code>admin / admin123</code>.
+        </small>
+      </p>
+
+      <form method="post" action="{{ url_for('settings') }}"
+            onsubmit="return confirm('⚠️  This will permanently wipe ALL data.\n\nAre you absolutely sure?');">
+        <input type="hidden" name="csrf"   value="{{ csrf_token() }}">
+        <input type="hidden" name="action" value="clear_db">
+        <button class="btn danger" type="submit" id="btn-clear-db"
+                style="font-size:14px;padding:10px 18px;">
+          🗑 Clear Database
+        </button>
+      </form>
+    </div>
+
+    <hr style="border-color:rgba(255,255,255,.10);margin:18px 0;">
+
+    <div style="margin-top:8px;">
+      <a class="btn" href="{{ url_for('dashboard') }}">← Back to Dashboard</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

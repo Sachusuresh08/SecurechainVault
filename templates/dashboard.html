@@ -28,18 +28,20 @@
           <td class="mono" title="{{ f.sha256 }}">{{ f.sha256[:18] }}…</td>
           <td class="row">
             {% if current_role == 'admin' or f.owner == current_user %}
-              <a class="btn primary" href="{{ url_for('download_file', file_id=f.id) }}">Download</a>
+            <a class="btn primary" href="{{ url_for('download_file', file_id=f.id) }}">Download</a>
             {% else %}
-              <form method="post" action="{{ url_for('request_download', file_id=f.id) }}">
-                <input type="hidden" name="csrf" value="{{ csrf_token() }}">
-                <button class="btn" type="submit">Request download</button>
-              </form>
+            <form method="post" action="{{ url_for('request_download', file_id=f.id) }}">
+              <input type="hidden" name="csrf" value="{{ csrf_token() }}">
+              <button class="btn" type="submit">Request download</button>
+            </form>
             {% endif %}
           </td>
         </tr>
         {% endfor %}
         {% if not files %}
-        <tr><td colspan="5"><small>No files yet.</small></td></tr>
+        <tr>
+          <td colspan="5"><small>No files yet.</small></td>
+        </tr>
         {% endif %}
       </tbody>
     </table>
@@ -67,55 +69,67 @@
     </form>
 
     {% if current_role in ['staff','admin'] %}
-      <hr style="border-color:rgba(255,255,255,.10); margin:16px 0;">
-      <h2>Pending approvals</h2>
-      {% if pending %}
-        <p><small>You can approve from the Approvals page.</small></p>
-        <div class="mono">Pending requests: {{ pending|length }}</div>
-        <table class="table" style="margin-top:8px">
-          <thead>
-            <tr><th>ID</th><th>Requester</th><th>Action</th><th>Target</th></tr>
-          </thead>
-          <tbody>
-            {% for r in pending %}
-            <tr>
-              <td>{{ r.id }}</td>
-              <td>{{ r.requester }}</td>
-              <td>{{ r.action }}</td>
-              <td>
-                {% if r.action=='upload' %}
-                  {{ r.orig_filename }}
-                {% elif r.action=='download' %}
-                  file_id={{ r.file_id }}
-                {% else %}
-                  -
-                {% endif %}
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p><small>No pending approvals.</small></p>
-      {% endif %}
+    <hr style="border-color:rgba(255,255,255,.10); margin:16px 0;">
+    <h2>Pending approvals</h2>
+    {% if pending %}
+    <p><small>You can approve from the Approvals page.</small></p>
+    <div class="mono">Pending requests: {{ pending|length }}</div>
+    <table class="table" style="margin-top:8px">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Requester</th>
+          <th>Action</th>
+          <th>Target</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in pending %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.requester }}</td>
+          <td>{{ r.action }}</td>
+          <td>
+            {% if r.action=='upload' %}
+            {{ r.orig_filename }}
+            {% elif r.action=='download' %}
+            file_id={{ r.file_id }}
+            {% else %}
+            -
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p><small>No pending approvals.</small></p>
+    {% endif %}
     {% endif %}
 
     {% if recent_reqs %}
-      <hr style="border-color:rgba(255,255,255,.10); margin:16px 0;">
-      <h2>Recent requests</h2>
-      <table class="table" style="margin-top:8px">
-        <thead><tr><th>ID</th><th>Requester</th><th>Action</th><th>Status</th></tr></thead>
-        <tbody>
-          {% for r in recent_reqs %}
-          <tr>
-            <td>{{ r.id }}</td>
-            <td>{{ r.requester }}</td>
-            <td>{{ r.action }}</td>
-            <td>{{ r.status }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+    <hr style="border-color:rgba(255,255,255,.10); margin:16px 0;">
+    <h2>Recent requests</h2>
+    <table class="table" style="margin-top:8px">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Requester</th>
+          <th>Action</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in recent_reqs %}
+        <tr>
+          <td>{{ r.id }}</td>
+          <td>{{ r.requester }}</td>
+          <td>{{ r.action }}</td>
+          <td>{{ r.status }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     {% endif %}
   </div>
 </div>

@@ -672,6 +672,53 @@ def status():
     conn.close()
     return render_template("status.html", stats=stats)
 
+@app.route("/settings", methods=["GET", "POST"])
+@login_required
+@role_required("admin")
+def settings():
+    if request.method == "POST":
+        require_csrf()
+        action = request.form.get("action")
+        if action == "clear_db":
+            conn = db_conn()
+            c = conn.cursor()
+            # Wipe all data but keep the schema intact
+            c.execute("DELETE FROM request_decisions")
+            c.execute("DELETE FROM requests")
+            c.execute("DELETE FROM notifications")
+            c.execute("DELETE FROM files")
+            c.execute("DELETE FROM users")
+            # Reset blockchain table
+            try:
+                c.execute("DELETE FROM chain_blocks")
+            except Exception:
+                pass
+            conn.commit()
+            conn.close()
+
+            # Delete all stored files from disk
+            try:
+                for fname in os.listdir(STORAGE_DIR):
+                    fpath = os.path.join(STORAGE_DIR, fname)
+                    if os.path.isfile(fpath):
+                        os.remove(fpath)
+            except Exception:
+                pass
+
+            # Re-initialise: recreate admin account + fresh blockchain
+            init_db()
+
+            # Admin account re-created by init_db; clear the current session
+            session.clear()
+            flash("Database cleared. All data has been wiped. Please log in again.", "ok")
+            return redirect(url_for("login"))
+
+        flash("Unknown action.", "bad")
+        return redirect(url_for("settings"))
+
+    return render_template("settings.html")
+
+
 @app.route("/logout")
 def logout():
     session.clear()

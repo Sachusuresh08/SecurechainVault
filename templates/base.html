@@ -365,6 +365,7 @@ document.addEventListener("DOMContentLoaded", function () {
         {% if current_role == 'admin' %}
           <a class="pill" href="{{ url_for('admin_users') }}">Admin</a>
           <a class="pill" href="{{ url_for('admin_chain') }}">Chain (admin)</a>
+          <a class="pill" href="{{ url_for('settings') }}">⚙️ Settings</a>
         {% endif %}
       {% endif %}
     </div>
