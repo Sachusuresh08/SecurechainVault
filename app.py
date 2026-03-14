@@ -559,6 +559,71 @@ def download_file(file_id: int):
         mimetype=f["mimetype"] or "application/octet-stream"
     )
 
+@app.route("/api/download/request/<int:req_id>")
+@login_required
+def download_by_request(req_id: int):
+    """Serve the file for an approved download request, after verifying identity and SHA-256 hash."""
+    conn = db_conn()
+    c = conn.cursor()
+
+    # 1. Look up the request
+    c.execute("SELECT * FROM requests WHERE id=?", (req_id,))
+    req = c.fetchone()
+
+    if not req:
+        conn.close()
+        flash("Request not found.", "bad")
+        return redirect(url_for("dashboard"))
+
+    # 2. Verify identity: only the original requester may use this link
+    if req["requester"] != session.get("user"):
+        conn.close()
+        abort(403)
+
+    # 3. Check it is an approved download request
+    if req["action"] != "download" or req["status"] != "approved":
+        conn.close()
+        flash("This request is not an approved download request.", "bad")
+        return redirect(url_for("dashboard"))
+
+    # 4. Look up the associated file record
+    c.execute("SELECT * FROM files WHERE id=?", (req["file_id"],))
+    f = c.fetchone()
+
+    if not f:
+        conn.close()
+        flash("Associated file record not found.", "bad")
+        return redirect(url_for("dashboard"))
+
+    # 5. Verify SHA-256 hash before serving (integrity check)
+    file_path = os.path.join(STORAGE_DIR, f["stored_filename"])
+    if not os.path.exists(file_path):
+        conn.close()
+        flash("File not found on disk.", "bad")
+        return redirect(url_for("dashboard"))
+
+    with open(file_path, "rb") as fp:
+        actual_hash = sha256_bytes(fp.read())
+
+    if actual_hash != f["sha256"]:
+        conn.close()
+        abort(500, description="File integrity check failed: SHA-256 mismatch.")
+
+    # 6. Mark request as 'completed' (single-use enforcement)
+    c.execute("UPDATE requests SET status='completed' WHERE id=?", (req_id,))
+    conn.commit()
+
+    append_block(conn, "DOWNLOAD", {"file_id": f["id"], "by": session["user"], "request_id": req_id, "sha256_verified": True})
+    conn.close()
+
+    return send_from_directory(
+        STORAGE_DIR,
+        f["stored_filename"],
+        as_attachment=True,
+        download_name=f["orig_filename"],
+        mimetype=f["mimetype"] or "application/octet-stream"
+    )
+
 # ... (notifications, admin_users, admin_chain, chain_public, status, logout remain exactly the same) ...
 
 @app.route("/notifications")

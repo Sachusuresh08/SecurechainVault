@@ -116,7 +116,8 @@
           <th>ID</th>
           <th>Requester</th>
           <th>Action</th>
-          <th>Status</th>
+          <th>File</th>
+          <th>Status / Action</th>
         </tr>
       </thead>
       <tbody>
@@ -125,7 +126,16 @@
           <td>{{ r.id }}</td>
           <td>{{ r.requester }}</td>
           <td>{{ r.action }}</td>
-          <td>{{ r.status }}</td>
+          <td title="{{ r.orig_filename }}">
+            {% if r.orig_filename %}{{ r.orig_filename }}{% else %}-{% endif %}
+          </td>
+          <td>
+            {% if r.action == 'download' and r.status == 'approved' and r.requester == current_user %}
+              <a class="btn primary" href="{{ url_for('download_by_request', req_id=r.id) }}">Download File</a>
+            {% else %}
+              {{ r.status }}
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
       </tbody>
