@@ -479,6 +479,14 @@ def decision():
                            (req2["requester"], req2["orig_filename"], meta["stored"], req2["mimetype"], req2["sha256"], datetime.utcnow().isoformat()))
                 file_id = c2.lastrowid
                 append_block(conn2, "FILE_STORED", {"file_id": file_id, "owner": req2["requester"], "filename": req2["orig_filename"], "sha256": req2["sha256"]})
+
+                # Notify requester that their upload was approved and is ready to download
+                download_msg = f"DOWNLOAD_READY|{file_id}|{req2['orig_filename']}"
+                c2.execute(
+                    "INSERT INTO notifications (recipient, message, created_at) VALUES (?,?,?)",
+                    (req2["requester"], download_msg, datetime.utcnow().isoformat())
+                )
+
                 conn2.commit()
                 try:
                     os.remove(sidecar)
@@ -500,6 +508,18 @@ def download_file(file_id: int):
         conn.close()
         flash("File not found.", "bad")
         return redirect(url_for("dashboard"))
+
+    # Owner can download their own file once it exists (no extra request needed)
+    if session.get("user") == f["owner"]:
+        append_block(conn, "DOWNLOAD_OWNER", {"file_id": file_id, "by": session["user"]})
+        conn.close()
+        return send_from_directory(
+            STORAGE_DIR,
+            f["stored_filename"],
+            as_attachment=True,
+            download_name=f["orig_filename"],
+            mimetype=f["mimetype"] or "application/octet-stream"
+        )
 
     # Admin can directly download without needing an approved request
     if session.get("role") == "admin":

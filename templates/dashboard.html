@@ -27,7 +27,7 @@
           <td title="{{ f.orig_filename }}">{{ f.orig_filename }}</td>
           <td class="mono" title="{{ f.sha256 }}">{{ f.sha256[:18] }}…</td>
           <td class="row">
-            {% if current_role == 'admin' %}
+            {% if current_role == 'admin' or f.owner == current_user %}
               <a class="btn primary" href="{{ url_for('download_file', file_id=f.id) }}">Download</a>
             {% else %}
               <form method="post" action="{{ url_for('request_download', file_id=f.id) }}">
