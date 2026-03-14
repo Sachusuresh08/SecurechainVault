@@ -251,6 +251,23 @@ label {
   word-break: break-all;
 }
 
+/* Truncate long filenames — shows suffix e.g. "…reat.png" */
+.truncate-filename {
+  display: inline-block;
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  direction: rtl;        /* ellipsis appears at the LEFT (start) */
+  unicode-bidi: plaintext;
+  vertical-align: bottom;
+}
+
+/* Keep filename column from blowing out the table */
+.table td.col-filename {
+  max-width: 160px;
+}
+
 /* Slider */
 .slider {
   position: relative;

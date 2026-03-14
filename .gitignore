@@ -2,13 +2,12 @@
 __pycache__/
 *.py[cod]
 
-# SQLite runtime DB
-users.db
-*.db
-*.sqlite
+# SQLite runtime DB — keep tracked locally so data survives restarts
+# (add users.db back to gitignore only if deploying to production)
 
-# Uploaded storage
-storage/
+# Uploaded storage — track the folder, ignore the file contents
+storage/*
+!storage/.gitkeep
 
 # Virtualenvs
 .venv/

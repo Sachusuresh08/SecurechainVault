@@ -24,7 +24,7 @@
         <tr>
           <td>{{ f.id }}</td>
           <td>{{ f.owner }}</td>
-          <td title="{{ f.orig_filename }}">{{ f.orig_filename }}</td>
+          <td class="col-filename" title="{{ f.orig_filename }}"><span class="truncate-filename">{{ f.orig_filename }}</span></td>
           <td class="mono" title="{{ f.sha256 }}">{{ f.sha256[:18] }}…</td>
           <td class="row">
             {% if current_role == 'admin' or f.owner == current_user %}
@@ -126,8 +126,8 @@
           <td>{{ r.id }}</td>
           <td>{{ r.requester }}</td>
           <td>{{ r.action }}</td>
-          <td title="{{ r.orig_filename }}">
-            {% if r.orig_filename %}{{ r.orig_filename }}{% else %}-{% endif %}
+          <td class="col-filename" title="{{ r.orig_filename }}">
+            {% if r.orig_filename %}<span class="truncate-filename">{{ r.orig_filename }}</span>{% else %}-{% endif %}
           </td>
           <td>
             {% if r.action == 'download' and r.status == 'approved' and r.requester == current_user %}
