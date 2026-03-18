@@ -28,7 +28,15 @@
           <td class="mono" title="{{ f.sha256 }}">{{ f.sha256[:18] }}…</td>
           <td class="row">
             {% if current_role == 'admin' or f.owner == current_user %}
-            <a class="btn primary" href="{{ url_for('download_file', file_id=f.id) }}">Download</a>
+            <td class="action-col">
+              {% if r.action == 'download' and r.status == 'approved' and r.requester == current_user %}
+                <a class="btn primary download-btn" href="{{ url_for('download_by_request', req_id=r.id) }}">
+                  ⬇ Download
+                </a>
+              {% else %}
+                <span class="badge">{{ r.status }}</span>
+              {% endif %}
+            </td>
             {% else %}
             <form method="post" action="{{ url_for('request_download', file_id=f.id) }}">
               <input type="hidden" name="csrf" value="{{ csrf_token() }}">
